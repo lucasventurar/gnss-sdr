@@ -377,23 +377,18 @@ int gps_l1_ca_telemetry_decoder_gs::general_work(int noutput_items __attribute__
         case 0:  // no preamble information
             {
                 // correlate with preamble
-                int32_t corr_value = 0;
+                int32_t corr_value1 = 0;
+                int32_t corr_value2 = 0;
                 if (d_symbol_history.size() >= GPS_CA_PREAMBLE_LENGTH_SYMBOLS)
                     {
                         // ******* preamble correlation ********
                         for (int32_t i = 0; i < GPS_CA_PREAMBLE_LENGTH_SYMBOLS; i++)
                             {
-                                if (d_symbol_history[i] < 0.0)  // symbols clipping
-                                    {
-                                        corr_value -= d_preamble_samples[i];
-                                    }
-                                else
-                                    {
-                                        corr_value += d_preamble_samples[i];
-                                    }
+                        	    corr_value1 += d_preamble_samples[i];
+                        	    corr_value2 += abs(d_preamble_samples[i]);
                             }
                     }
-                if (abs(corr_value) >= d_samples_per_preamble)
+                if (abs(corr_value1) - corr_value2 >= d_samples_per_preamble)
                     {
                         d_preamble_index = d_sample_counter;  // record the preamble sample stamp
                         DLOG(INFO) << "Preamble detection for GPS L1 satellite " << this->d_satellite;
@@ -405,24 +400,19 @@ int gps_l1_ca_telemetry_decoder_gs::general_work(int noutput_items __attribute__
         case 1:  // possible preamble lock
             {
                 // correlate with preamble
-                int32_t corr_value = 0;
+                int32_t corr_value1 = 0;
+                int32_t corr_value2 = 0;
                 int32_t preamble_diff = 0;
                 if (d_symbol_history.size() >= GPS_CA_PREAMBLE_LENGTH_SYMBOLS)
                     {
                         // ******* preamble correlation ********
                         for (int32_t i = 0; i < GPS_CA_PREAMBLE_LENGTH_SYMBOLS; i++)
                             {
-                                if (d_symbol_history[i] < 0.0)  // symbols clipping
-                                    {
-                                        corr_value -= d_preamble_samples[i];
-                                    }
-                                else
-                                    {
-                                        corr_value += d_preamble_samples[i];
-                                    }
+                                corr_value1 += d_preamble_samples[i];
+                                corr_value2 += abs(d_preamble_samples[i]);
                             }
                     }
-                if (abs(corr_value) >= d_samples_per_preamble)
+                if (abs(corr_value1) - corr_value2 >= d_samples_per_preamble)
                     {
                         // check preamble separation
                         preamble_diff = static_cast<int32_t>(d_sample_counter - d_preamble_index);
@@ -430,7 +420,7 @@ int gps_l1_ca_telemetry_decoder_gs::general_work(int noutput_items __attribute__
                             {
                                 DLOG(INFO) << "Preamble confirmation for SAT " << this->d_satellite;
                                 d_preamble_index = d_sample_counter;  // record the preamble sample stamp
-                                if (corr_value < 0) flag_PLL_180_deg_phase_locked = true;
+                                if (abs(corr_value1) - corr_value2 < 0) flag_PLL_180_deg_phase_locked = true;
                                 d_stat = 2;
                             }
                         else
