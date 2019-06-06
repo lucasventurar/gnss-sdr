@@ -1,7 +1,7 @@
 /*!
  * \file gps_l1_ca_telemetry_decoder_gs.cc
  * \brief Implementation of a NAV message demodulator block based on
- * Kay Borre book MATLAB-based GPS receiver
+ * Kai Borre book MATLAB-based GPS receiver
  * \author Javier Arribas, 2011. jarribas(at)cttc.es
  *
  * -------------------------------------------------------------------------
