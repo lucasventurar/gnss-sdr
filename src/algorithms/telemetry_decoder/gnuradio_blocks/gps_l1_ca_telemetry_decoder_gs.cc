@@ -89,40 +89,12 @@ GpsL1CADllPllTelemetryDecoderTest_msg_rx_sptr GpsL1CADllPllTelemetryDecoderTest_
 
 void GpsL1CADllPllTelemetryDecoderTest_msg_rx::msg_handler_events(pmt::pmt_t msg)
 {
-<<<<<<< HEAD
     try
         {
             int64_t message = pmt::to_long(std::move(msg));
             rx_message = message;
         }
     catch (boost::bad_any_cast& e)
-=======
-    // prevent telemetry symbols accumulation in output buffers
-    this->set_max_noutput_items(1);
-
-    // Ephemeris data port out
-    this->message_port_register_out(pmt::mp("telemetry"));
-    // Control messages to tracking block
-    this->message_port_register_out(pmt::mp("telemetry_to_trk"));
-    d_last_valid_preamble = 0;
-    d_sent_tlm_failed_msg = false;
-
-    // initialize internal vars
-    d_dump = dump;
-    d_satellite = Gnss_Satellite(satellite.get_system(), satellite.get_PRN());
-    DLOG(INFO) << "Initializing GPS L1 TELEMETRY DECODER";
-
-    d_bits_per_preamble = GPS_CA_PREAMBLE_LENGTH_BITS;
-    d_samples_per_preamble = d_bits_per_preamble;
-    d_preamble_period_symbols = GPS_SUBFRAME_BITS;
-    // set the preamble
-    d_required_symbols = GPS_SUBFRAME_BITS;
-    // preamble bits to sampled symbols
-    d_frame_length_symbols = GPS_SUBFRAME_BITS * GPS_CA_TELEMETRY_SYMBOLS_PER_BIT;
-    d_max_symbols_without_valid_frame = d_required_symbols * 20;  // rise alarm 120 segs without valid tlm
-    int32_t n = 0;
-    for (int32_t i = 0; i < d_bits_per_preamble; i++)
->>>>>>> From GNSS-SDR
         {
             LOG(WARNING) << "msg_handler_telemetry Bad any cast!";
             rx_message = 0;
