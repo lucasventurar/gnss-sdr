@@ -1,6 +1,7 @@
 /*!
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  * \file gps_l1_ca_telemetry_decoder_gs.cc
  * \brief Implementation of a NAV message demodulator block based on
  * Kay Borre book MATLAB-based GPS receiver
@@ -12,6 +13,8 @@
 =======
 =======
 >>>>>>> "Like next"
+=======
+>>>>>>> set to normal
  * \file gps_l1_ca_dll_pll_tracking_test.cc
  * \brief  This class implements a telemetry decoder test for GPS_L1_CA_Telemetry_Decoder
  *  implementation based on some input parameters.
@@ -22,9 +25,12 @@
  *
  * Copyright (C) 2012-2019  (see AUTHORS file for a list of contributors)
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> set to normal
 =======
 >>>>>>> "Like next"
+=======
+>>>>>>> set to normal
  *
  * GNSS-SDR is a software defined Global Navigation
  *          Satellite Systems receiver
@@ -47,6 +53,7 @@
  * -------------------------------------------------------------------------
  */
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 #include "gps_l1_ca_telemetry_decoder_gs.h"
@@ -577,6 +584,8 @@ int gps_l1_ca_telemetry_decoder_gs::general_work(int noutput_items __attribute__
 =======
 =======
 >>>>>>> "Like next"
+=======
+>>>>>>> set to normal
 #include <armadillo>
 #include <gnuradio/analog/sig_source_waveform.h>
 #include <gnuradio/blocks/file_source.h>
@@ -638,14 +647,18 @@ void GpsL1CADllPllTelemetryDecoderTest_msg_rx::msg_handler_events(pmt::pmt_t msg
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> "Like next"
+=======
+>>>>>>> set to normal
     try
         {
             int64_t message = pmt::to_long(std::move(msg));
             rx_message = message;
         }
     catch (boost::bad_any_cast& e)
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
     // prevent telemetry symbols accumulation in output buffers
@@ -676,6 +689,8 @@ void GpsL1CADllPllTelemetryDecoderTest_msg_rx::msg_handler_events(pmt::pmt_t msg
 >>>>>>> From GNSS-SDR
 =======
 >>>>>>> "Like next"
+=======
+>>>>>>> set to normal
         {
             LOG(WARNING) << "msg_handler_telemetry Bad any cast!";
             rx_message = 0;
@@ -813,8 +828,11 @@ int GpsL1CATelemetryDecoderTest::generate_signal()
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> "Like next"
+=======
+>>>>>>> set to normal
     int child_status;
 
     char* const parmList[] = {&generator_binary[0], &generator_binary[0], &p1[0], &p2[0], &p3[0], &p4[0], &p5[0], nullptr};
@@ -823,6 +841,7 @@ int GpsL1CATelemetryDecoderTest::generate_signal()
     if ((pid = fork()) == -1)
         {
             perror("fork err");
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 <<<<<<< HEAD
@@ -886,6 +905,8 @@ int GpsL1CATelemetryDecoderTest::generate_signal()
 >>>>>>> From GNSS-SDR
 =======
 >>>>>>> "Like next"
+=======
+>>>>>>> set to normal
         }
     else if (pid == 0)
         {
@@ -1113,8 +1134,11 @@ TEST_F(GpsL1CATelemetryDecoderTest, ValidationOfResults)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> "Like next"
+=======
+>>>>>>> set to normal
     // Cut measurement initial transitory of the measurements
     arma::uvec initial_meas_point = arma::find(tlm_tow_s >= true_tow_s(0), 1, "first");
     ASSERT_EQ(initial_meas_point.is_empty(), false);
@@ -1126,6 +1150,7 @@ TEST_F(GpsL1CATelemetryDecoderTest, ValidationOfResults)
     std::cout << "Test completed in " << elapsed_seconds.count() * 1e6 << " microseconds" << std::endl;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> set to normal
 =======
 =======
@@ -1134,4 +1159,6 @@ TEST_F(GpsL1CATelemetryDecoderTest, ValidationOfResults)
 >>>>>>> From GNSS-SDR
 =======
 >>>>>>> "Like next"
+=======
+>>>>>>> set to normal
 }
