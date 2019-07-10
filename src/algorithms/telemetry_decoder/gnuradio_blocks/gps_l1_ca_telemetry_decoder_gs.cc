@@ -215,13 +215,19 @@ bool gps_l1_ca_telemetry_decoder_gs::decode_subframe()
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> set to normal
     std::array<char, GPS_SUBFRAME_LENGTH> subframe{};
 =======
     char subframe[GPS_SUBFRAME_LENGTH];
 >>>>>>> set to normal
+<<<<<<< HEAD
 =======
     std::array<char, GPS_SUBFRAME_LENGTH> subframe{};
 >>>>>>> From GNSS-SDR
+=======
+>>>>>>> set to normal
     int32_t frame_bit_index = 0;
     int32_t word_index = 0;
     uint32_t GPS_frame_4bytes = 0;
