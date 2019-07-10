@@ -209,11 +209,7 @@ void gps_l1_ca_telemetry_decoder_gs::set_channel(int32_t channel)
 
 bool gps_l1_ca_telemetry_decoder_gs::decode_subframe()
 {
-<<<<<<< HEAD
     std::array<char, GPS_SUBFRAME_LENGTH> subframe{};
-=======
-    std::array<char, GPS_SUBFRAME_LENGTH> subframe{};
->>>>>>> From GNSS-SDR
     int32_t frame_bit_index = 0;
     int32_t word_index = 0;
     uint32_t GPS_frame_4bytes = 0;
