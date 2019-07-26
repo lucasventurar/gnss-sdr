@@ -198,7 +198,7 @@ void gps_l1_ca_telemetry_decoder_gs::set_channel(int32_t channel)
         }
 }
 
-
+/*L
 bool gps_l1_ca_telemetry_decoder_gs::decode_subframe()
 {
 <<<<<<< HEAD
@@ -314,7 +314,7 @@ bool gps_l1_ca_telemetry_decoder_gs::decode_subframe()
             return false;
         }
 }
-
+L*/
 
 void gps_l1_ca_telemetry_decoder_gs::reset()
 {
@@ -378,7 +378,7 @@ int gps_l1_ca_telemetry_decoder_gs::general_work(int noutput_items __attribute__
                     {
                         d_preamble_index = d_sample_counter;  // record the preamble sample stamp
                         DLOG(INFO) << "Preamble detection for GPS L1 satellite " << this->d_satellite;
-                        decode_subframe();
+                        //L decode_subframe();
                         d_stat = 1;  // enter into frame pre-detection status
                     }
                 flag_TOW_set = false;
@@ -434,6 +434,7 @@ int gps_l1_ca_telemetry_decoder_gs::general_work(int noutput_items __attribute__
                     }
                 break;
             }
+            /*L
         case 2:  // preamble acquired
             {
                 if (d_sample_counter >= d_preamble_index + static_cast<uint64_t>(d_preamble_period_symbols))
@@ -472,6 +473,7 @@ int gps_l1_ca_telemetry_decoder_gs::general_work(int noutput_items __attribute__
                     }
                 break;
             }
+            L*/
         }
 
     // 2. Add the telemetry decoder information

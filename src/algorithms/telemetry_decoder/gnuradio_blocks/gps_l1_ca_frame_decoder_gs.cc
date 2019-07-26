@@ -351,7 +351,7 @@ int gps_l1_ca_telemetry_decoder_gs::general_work(int noutput_items __attribute__
                     d_sent_tlm_failed_msg = true;
                 }
         }
-
+    
     // ******* frame sync ******************
     switch (d_stat)
         {
