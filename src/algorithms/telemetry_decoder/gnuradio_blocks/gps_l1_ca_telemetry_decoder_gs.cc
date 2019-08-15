@@ -240,6 +240,7 @@ int GpsL1CATelemetryDecoderTest::generate_signal()
             perror("fork err");
 
     std::array<char, GPS_SUBFRAME_LENGTH> subframe{};
+
     int32_t frame_bit_index = 0;
     int32_t word_index = 0;
     uint32_t GPS_frame_4bytes = 0;
