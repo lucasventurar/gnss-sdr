@@ -61,11 +61,7 @@ gps_l1_ca_telemetry_decoder_gs::gps_l1_ca_telemetry_decoder_gs(
     bool dump) : gr::block("gps_navigation_gs", gr::io_signature::make(1, 1, sizeof(Gnss_Synchro)),
                      gr::io_signature::make(1, 1, sizeof(Gnss_Synchro)))
 {
-<<<<<<< HEAD
     // prevent telemetry symbols accumulation in output buffers
-=======
-    //prevent telemetry symbols accumulation in output buffers
->>>>>>> set to normal
     this->set_max_noutput_items(1);
 
     // Ephemeris data port out
@@ -220,6 +216,7 @@ bool gps_l1_ca_telemetry_decoder_gs::decode_subframe()
 >>>>>>> set to normal
     std::array<char, GPS_SUBFRAME_LENGTH> subframe{};
 =======
+<<<<<<< HEAD
     char subframe[GPS_SUBFRAME_LENGTH];
 >>>>>>> set to normal
 <<<<<<< HEAD
@@ -228,6 +225,10 @@ bool gps_l1_ca_telemetry_decoder_gs::decode_subframe()
 >>>>>>> From GNSS-SDR
 =======
 >>>>>>> set to normal
+=======
+    std::array<char, GPS_SUBFRAME_LENGTH> subframe{};
+>>>>>>> From GNSS-SDR
+>>>>>>> From GNSS-SDR
     int32_t frame_bit_index = 0;
     int32_t word_index = 0;
     uint32_t GPS_frame_4bytes = 0;
@@ -251,7 +252,6 @@ bool gps_l1_ca_telemetry_decoder_gs::decode_subframe()
                     //      Bits 0 to 29 = the GPS data word
                     //      Bits 30 to 31 = 2 LSBs of the GPS word ahead.
                     // prepare the extended frame [-2 -1 0 ... 30]
-<<<<<<< HEAD
                     if (d_prev_GPS_frame_4bytes & 0x00000001U)
                         {
                             GPS_frame_4bytes = GPS_frame_4bytes | 0x40000000U;
@@ -265,21 +265,6 @@ bool gps_l1_ca_telemetry_decoder_gs::decode_subframe()
                     if (GPS_frame_4bytes & 0x40000000U)
                         {
                             GPS_frame_4bytes ^= 0x3FFFFFC0U;  // invert the data bits (using XOR)
-=======
-                    if (d_prev_GPS_frame_4bytes & 0x00000001)
-                        {
-                            GPS_frame_4bytes = GPS_frame_4bytes | 0x40000000;
-                        }
-                    if (d_prev_GPS_frame_4bytes & 0x00000002)
-                        {
-                            GPS_frame_4bytes = GPS_frame_4bytes | 0x80000000;
-                        }
-                    // Check that the 2 most recently logged words pass parity. Have to first
-                    // invert the data bits according to bit 30 of the previous word.
-                    if (GPS_frame_4bytes & 0x40000000)
-                        {
-                            GPS_frame_4bytes ^= 0x3FFFFFC0;  // invert the data bits (using XOR)
->>>>>>> set to normal
                         }
                     // check parity. If ANY word inside the subframe fails the parity, set subframe_synchro_confirmation = false
                     if (not gps_l1_ca_telemetry_decoder_gs::gps_word_parityCheck(GPS_frame_4bytes))
@@ -295,11 +280,7 @@ bool gps_l1_ca_telemetry_decoder_gs::decode_subframe()
                 }
             else
                 {
-<<<<<<< HEAD
                     GPS_frame_4bytes <<= 1U;  // shift 1 bit left the telemetry word
-=======
-                    GPS_frame_4bytes <<= 1;  // shift 1 bit left the telemetry word
->>>>>>> set to normal
                 }
         }
 
