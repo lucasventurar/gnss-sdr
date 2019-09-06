@@ -238,6 +238,7 @@ int GpsL1CATelemetryDecoderTest::generate_signal()
     if ((pid = fork()) == -1)
         {
             perror("fork err");
+<<<<<<< HEAD
 
     std::array<char, GPS_SUBFRAME_LENGTH> subframe{};
 
@@ -296,6 +297,8 @@ int GpsL1CATelemetryDecoderTest::generate_signal()
                 }
         {
             perror("fork err");
+=======
+>>>>>>> "Like next"
         }
     else if (pid == 0)
         {
