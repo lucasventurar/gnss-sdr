@@ -839,18 +839,22 @@ int GpsL1CATelemetryDecoderTest::generate_signal()
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> "Like next"
 =======
 >>>>>>> set to normal
 =======
 >>>>>>> From GNSS-SDR
+=======
+>>>>>>> set to normal
     int child_status;
 
     char* const parmList[] = {&generator_binary[0], &generator_binary[0], &p1[0], &p2[0], &p3[0], &p4[0], &p5[0], nullptr};
 
     int pid;
     if ((pid = fork()) == -1)
+<<<<<<< HEAD
         {
             perror("fork err");
 <<<<<<< HEAD
@@ -869,6 +873,8 @@ int GpsL1CATelemetryDecoderTest::generate_signal()
     uint32_t GPS_frame_4bytes = 0;
     bool subframe_synchro_confirmation = true;
     for (float subframe_symbol : d_symbol_history)
+=======
+>>>>>>> set to normal
         {
             // ******* SYMBOL TO BIT *******
             // symbol to bit
