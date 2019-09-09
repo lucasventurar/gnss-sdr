@@ -61,17 +61,6 @@ gps_l1_ca_telemetry_decoder_gs::gps_l1_ca_telemetry_decoder_gs(
     bool dump) : gr::block("gps_navigation_gs", gr::io_signature::make(1, 1, sizeof(Gnss_Synchro)),
                      gr::io_signature::make(1, 1, sizeof(Gnss_Synchro)))
 {
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-    try
-        {
-            int64_t message = pmt::to_long(std::move(msg));
-            rx_message = message;
-        }
-    catch (boost::bad_any_cast& e)
-=======
->>>>>>> From GNSS-SDR
     // prevent telemetry symbols accumulation in output buffers
     this->set_max_noutput_items(1);
 
@@ -97,10 +86,6 @@ gps_l1_ca_telemetry_decoder_gs::gps_l1_ca_telemetry_decoder_gs(
     d_max_symbols_without_valid_frame = d_required_symbols * 20;  // rise alarm 120 segs without valid tlm
     int32_t n = 0;
     for (int32_t i = 0; i < d_bits_per_preamble; i++)
-<<<<<<< HEAD
-=======
->>>>>>> From GNSS-SDR
->>>>>>> From GNSS-SDR
         {
             if (GPS_CA_PREAMBLE[i] == '1')
                 {
@@ -224,7 +209,6 @@ void gps_l1_ca_telemetry_decoder_gs::set_channel(int32_t channel)
 
 bool gps_l1_ca_telemetry_decoder_gs::decode_subframe()
 {
-<<<<<<< HEAD
     std::array<char, GPS_SUBFRAME_LENGTH> subframe{};
     int32_t frame_bit_index = 0;
     int32_t word_index = 0;
@@ -232,29 +216,6 @@ bool gps_l1_ca_telemetry_decoder_gs::decode_subframe()
     bool subframe_synchro_confirmation = true;
     for (float subframe_symbol : d_symbol_history)
         {
-=======
-<<<<<<< HEAD
-    int child_status;
-
-    char* const parmList[] = {&generator_binary[0], &generator_binary[0], &p1[0], &p2[0], &p3[0], &p4[0], &p5[0], nullptr};
-
-    int pid;
-    if ((pid = fork()) == -1)
-        {
-            perror("fork err");
-=======
-<<<<<<< HEAD
-    std::array<char, GPS_SUBFRAME_LENGTH> subframe{};
-=======
-    std::array<char, GPS_SUBFRAME_LENGTH> subframe{};
->>>>>>> From GNSS-SDR
-    int32_t frame_bit_index = 0;
-    int32_t word_index = 0;
-    uint32_t GPS_frame_4bytes = 0;
-    bool subframe_synchro_confirmation = true;
-    for (float subframe_symbol : d_symbol_history)
-        {
->>>>>>> From GNSS-SDR
             // ******* SYMBOL TO BIT *******
             // symbol to bit
             if (subframe_symbol > 0)
@@ -302,10 +263,6 @@ bool gps_l1_ca_telemetry_decoder_gs::decode_subframe()
                 {
                     GPS_frame_4bytes <<= 1U;  // shift 1 bit left the telemetry word
                 }
-<<<<<<< HEAD
-=======
->>>>>>> From GNSS-SDR
->>>>>>> From GNSS-SDR
         }
 
     // decode subframe
@@ -536,7 +493,6 @@ int gps_l1_ca_telemetry_decoder_gs::general_work(int noutput_items __attribute__
                 }
         }
 
-<<<<<<< HEAD
     if (flag_TOW_set == true)
         {
             current_symbol.TOW_at_current_symbol_ms = d_TOW_at_current_symbol_ms;
@@ -575,19 +531,4 @@ int gps_l1_ca_telemetry_decoder_gs::general_work(int noutput_items __attribute__
         }
 
     return 0;
-=======
-<<<<<<< HEAD
-    // Cut measurement initial transitory of the measurements
-    arma::uvec initial_meas_point = arma::find(tlm_tow_s >= true_tow_s(0), 1, "first");
-    ASSERT_EQ(initial_meas_point.is_empty(), false);
-    tlm_timestamp_s = tlm_timestamp_s.subvec(initial_meas_point(0), tlm_timestamp_s.size() - 1);
-    tlm_tow_s = tlm_tow_s.subvec(initial_meas_point(0), tlm_tow_s.size() - 1);
-
-    check_results(true_timestamp_s, true_tow_s, tlm_timestamp_s, tlm_tow_s);
-
-    std::cout << "Test completed in " << elapsed_seconds.count() * 1e6 << " microseconds" << std::endl;
-=======
-    return 0;
->>>>>>> From GNSS-SDR
->>>>>>> From GNSS-SDR
 }
