@@ -58,8 +58,8 @@ public:
     std::vector<int> initial_vector_pd;
     std::vector<int> initial_vector_pfa;
     // initial_vector with noise
-    std::vector<double> synchro_vector_pd;
-    std::vector<double> synchro_vector_pfa;
+    std::vector<double> synchro_vector;
+    std::vector<double> synchro_vector;
 
     // Initializes d_preamble_samples with the SW
     void preamble_samples();
