@@ -89,40 +89,12 @@ GpsL1CADllPllTelemetryDecoderTest_msg_rx_sptr GpsL1CADllPllTelemetryDecoderTest_
 
 void GpsL1CADllPllTelemetryDecoderTest_msg_rx::msg_handler_events(pmt::pmt_t msg)
 {
-<<<<<<< HEAD
     try
         {
             int64_t message = pmt::to_long(std::move(msg));
             rx_message = message;
         }
     catch (boost::bad_any_cast& e)
-=======
-    // prevent telemetry symbols accumulation in output buffers
-    this->set_max_noutput_items(1);
-
-    // Ephemeris data port out
-    this->message_port_register_out(pmt::mp("telemetry"));
-    // Control messages to tracking block
-    this->message_port_register_out(pmt::mp("telemetry_to_trk"));
-    d_last_valid_preamble = 0;
-    d_sent_tlm_failed_msg = false;
-
-    // initialize internal vars
-    d_dump = dump;
-    d_satellite = Gnss_Satellite(satellite.get_system(), satellite.get_PRN());
-    DLOG(INFO) << "Initializing GPS L1 TELEMETRY DECODER";
-
-    d_bits_per_preamble = GPS_CA_PREAMBLE_LENGTH_BITS;
-    d_samples_per_preamble = d_bits_per_preamble;
-    d_preamble_period_symbols = GPS_SUBFRAME_BITS;
-    // set the preamble
-    d_required_symbols = GPS_SUBFRAME_BITS;
-    // preamble bits to sampled symbols
-    d_frame_length_symbols = GPS_SUBFRAME_BITS * GPS_CA_TELEMETRY_SYMBOLS_PER_BIT;
-    d_max_symbols_without_valid_frame = d_required_symbols * 20;  // rise alarm 120 segs without valid tlm
-    int32_t n = 0;
-    for (int32_t i = 0; i < d_bits_per_preamble; i++)
->>>>>>> From GNSS-SDR
         {
             LOG(WARNING) << "msg_handler_telemetry Bad any cast!";
             rx_message = 0;
@@ -258,36 +230,17 @@ int GpsL1CATelemetryDecoderTest::configure_generator()
 
 int GpsL1CATelemetryDecoderTest::generate_signal()
 {
-<<<<<<< HEAD
     int child_status;
 
     char* const parmList[] = {&generator_binary[0], &generator_binary[0], &p1[0], &p2[0], &p3[0], &p4[0], &p5[0], nullptr};
 
     int pid;
     if ((pid = fork()) == -1)
-=======
-    std::array<char, GPS_SUBFRAME_LENGTH> subframe{};
-    int32_t frame_bit_index = 0;
-    int32_t word_index = 0;
-    uint32_t GPS_frame_4bytes = 0;
-    bool subframe_synchro_confirmation = true;
-    for (float subframe_symbol : d_symbol_history)
->>>>>>> set to normal
         {
             perror("fork err");
-<<<<<<< HEAD
-<<<<<<< HEAD
 
     std::array<char, GPS_SUBFRAME_LENGTH> subframe{};
 
-=======
-=======
-<<<<<<< HEAD
-    std::array<char, GPS_SUBFRAME_LENGTH> subframe{};
-=======
-    std::array<char, GPS_SUBFRAME_LENGTH> subframe{};
->>>>>>> From GNSS-SDR
->>>>>>> From GNSS-SDR
     int32_t frame_bit_index = 0;
     int32_t word_index = 0;
     uint32_t GPS_frame_4bytes = 0;
@@ -341,14 +294,8 @@ int GpsL1CATelemetryDecoderTest::generate_signal()
                 {
                     GPS_frame_4bytes <<= 1U;  // shift 1 bit left the telemetry word
                 }
-<<<<<<< HEAD
         {
             perror("fork err");
-=======
->>>>>>> "Like next"
-=======
->>>>>>> From GNSS-SDR
->>>>>>> From GNSS-SDR
         }
     else if (pid == 0)
         {
@@ -574,7 +521,6 @@ TEST_F(GpsL1CATelemetryDecoderTest, ValidationOfResults)
             epoch_counter++;
         }
 
-<<<<<<< HEAD
     // Cut measurement initial transitory of the measurements
     arma::uvec initial_meas_point = arma::find(tlm_tow_s >= true_tow_s(0), 1, "first");
     ASSERT_EQ(initial_meas_point.is_empty(), false);
@@ -584,7 +530,4 @@ TEST_F(GpsL1CATelemetryDecoderTest, ValidationOfResults)
     check_results(true_timestamp_s, true_tow_s, tlm_timestamp_s, tlm_tow_s);
 
     std::cout << "Test completed in " << elapsed_seconds.count() * 1e6 << " microseconds" << std::endl;
-=======
-    return 0;
->>>>>>> From GNSS-SDR
 }
