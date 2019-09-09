@@ -59,7 +59,6 @@ public:
     std::vector<int> initial_vector_pfa;
     // initial_vector with noise
     std::vector<double> synchro_vector;
-    std::vector<double> synchro_vector;
 
     // Initializes d_preamble_samples with the SW
     void preamble_samples();
@@ -248,7 +247,8 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, HardCorrelator)
     // Monte-Carlo realizations
     for (int32_t n = 0; n < Nw; n++)
         {
-            initial_vector.clear();
+            initial_vector_pd.clear();
+            initial_vector_pfa.clear();
             synchro_vector.clear();
 
             d_sample_counter = 0ULL;
@@ -444,7 +444,8 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, SLRTCorrelator)
     // Monte-Carlo realizations
     for (int32_t n = 0; n < Nw; n++)
         {
-            initial_vector.clear();
+            initial_vector_pd.clear();
+            initial_vector_pfa.clear();
             synchro_vector.clear();
 
             d_sample_counter = 0ULL;
