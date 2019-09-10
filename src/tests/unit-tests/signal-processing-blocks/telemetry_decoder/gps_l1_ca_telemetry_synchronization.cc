@@ -222,43 +222,6 @@ void GpsL1CATelemetrySynchronizationTest::fill_gnss_synchro()
 
 }
 
-TEST_F(GpsL1CATelemetrySynchronizationTest, OpenFiles)
-{
-  // file pointer
-  std::fstream fout;
-
-  // opens an existing csv (std::ios::app) file or creates a new file (std::ios::out).
-  std::string path = "synchronization_HC_test.csv";
-  std::ifstream fin(path);
-  if(fin.fail())
-  {
-    fout.open(path, std::ios::out);
-    fout << "stddev"
-         << ", "
-         << "n_preambles"
-         << ", "
-         << "n_preamble_detections_s0, n_correct_detections_s0, n_wrong_detections_s0, "
-         << "n_preamble_detections_s1, n_correct_detections_s1, n_wrong_detections_s1, "
-         << "final_synchronization"
-         << "\n";
-  }
-  else
-  {
-    fout.open(path, std::ios::app);
-    fout << "0"
-         << ", "
-         << "1"
-         << ", "
-         << "2, 3, 4, "
-         << "5, 6, 7, "
-         << "8"
-         << "\n";
-
-  }
-
-
-}
-
 /*!
  * \ Simulates the synchronization in gps_l1_ca_telemetry_decoder_gs and saves metrics (HC)
  *
@@ -403,10 +366,34 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, HardCorrelator)
                 }
         }
 
-    std::cout << n_s2 << std::endl;
+
+    // file pointer
+    std::fstream fout;
+
+    // opens an existing csv (std::ios::app) file or creates a new file (std::ios::out).
+    std::string path = "synchronization_HC_test.csv";
+    std::ifstream fin(path);
+    if(fin.fail())
+    {
+      fout.open(path, std::ios::out);
+      fout << "correlation" << ", "
+           << "montecarlo"  << ", "
+           << "snr"         << ", "
+           << "threshold"   << ", "
+           << "probability" << "\n";
+    }
+    else
+    {
+      fout.open(path, std::ios::app);
+      fout << "HardCorrelator"  << ", "
+           << Nw                << ", "
+           << snr               << ", "
+           << threshold         << ", "
+           << probability       << "\n"; // probability = 1, probability of detection is computed, if 0, probability of false alarm computed
+    }
 
     // Close file
-    //fout.close();
+    fout.close();
 
     end = std::chrono::system_clock::now();
     elapsed_seconds = end - start;
