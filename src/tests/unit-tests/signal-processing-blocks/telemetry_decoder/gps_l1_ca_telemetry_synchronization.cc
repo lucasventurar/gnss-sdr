@@ -43,7 +43,7 @@
 #define Nw 1000              // Number of Monte-Carlo realizations
 #define threshold 0	          // Threshold for SLRT
 #define snr 10
-#define probability 1       // If probability = 1, probability of detection is computed, if 0, probability of false alarm computed
+#define probability 0       // If probability = 1, probability of detection is computed, if 0, probability of false alarm computed
 
 
 /*!
@@ -720,9 +720,15 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, MultipleSLRTCorrelator)
                           }
                 }
 
-                if(d_flag_preamble) // If preamble indicator set to true, adds 1 to the number of preambles found.
+                // Probability of detection +1
+                if(probability == 1 && d_flag_preamble && (d_preamble_index - preamble_offset) % d_preamble_period_symbols == 0)
                 {
                     n_s2++;
+                }
+                // Probability of false error +1
+                else if(probability == 0 && d_flag_preamble)
+                {
+                  n_s2++;
                 }
 
           }
