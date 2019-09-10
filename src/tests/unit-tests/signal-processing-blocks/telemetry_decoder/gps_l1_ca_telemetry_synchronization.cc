@@ -41,7 +41,7 @@
 
 #define vector_size 1800     // 6 sub-frames with 300 bits (5 SW)
 #define Nw 10000              // Number of Monte-Carlo realizations
-#define threshold -0.1	     // Threshold for SLRT
+#define threshold 5	          // Threshold for SLRT
 #define snr 10
 #define probability 1       // If probability = 1, probability of detection is computed, if 0, probability of false alarm computed
 
@@ -383,22 +383,23 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, HardCorrelator)
            << "probability"    << ", "
            << "n_s2"           << "\n";
 
-     fout << "HardCorrelator"  << ", "
+     fout << "HC"  << ", "
           << Nw                << ", "
           << snr               << ", "
           << threshold         << ", "
           << probability       << ", " // probability = 1, probability of detection is computed, if 0, probability of false alarm computed
-          << n_s2              << "\n"; 
+          << n_s2              << "\n";
 
     }
     else
     {
       fout.open(path, std::ios::app);
-      fout << "HardCorrelator"  << ", "
+      fout << "HC"  << ", "
            << Nw                << ", "
            << snr               << ", "
            << threshold         << ", "
-           << probability       << "\n"; // probability = 1, probability of detection is computed, if 0, probability of false alarm computed
+           << probability       << ", " // probability = 1, probability of detection is computed, if 0, probability of false alarm computed
+           << n_s2              << "\n";
     }
 
     // Close file
@@ -422,20 +423,7 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, SLRTCorrelator)
     std::chrono::duration<double> elapsed_seconds(0);
     start = std::chrono::system_clock::now();
 
-    // file pointer
-    std::fstream fout;
-
-    // opens an existing csv (std::ios::app) file or creates a new file (std::ios::out).
-    fout.open("synchronization_SLRT_test_3.csv", std::ios::out);
-
-    fout << "stddev"
-         << ", "
-         << "n_preambles"
-         << ", "
-         << "n_preamble_detections_s0, n_correct_detections_s0, n_wrong_detections_s0, "
-         << "n_preamble_detections_s1, n_correct_detections_s1, n_wrong_detections_s1, "
-         << "final_synchronization"
-         << "\n";
+    int32_t n_s2 = 0;  // Number of synchronizations
 
     // Monte-Carlo realizations
     for (int32_t n = 0; n < Nw; n++)
@@ -449,18 +437,11 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, SLRTCorrelator)
 
             d_stat = 0;
 
+            d_flag_preamble = false;
+
             preamble_samples();
             make_vector();
             fill_gnss_synchro();
-
-            int32_t n_preamble_detections_s0 = 0;  // Number of detected preambles in state 0
-            int32_t n_preamble_detections_s1 = 0;  // Number of detected preambles in state 1
-            int32_t n_correct_detections_s0 = 0;   // Number of correct detected preambles in state 0
-            int32_t n_wrong_detections_s0 = 0;     // Number of wrong detected preambles in state 0
-            int32_t n_correct_detections_s1 = 0;   // Number of correct detected preambles in state 1
-            int32_t n_wrong_detections_s1 = 0;     // Number of wrong detected preambles in state 1
-            int32_t n_preambles = 0;               // Number of total preambles (missed and detected)
-            int32_t final_synchronization = 0;     // 0 if no final synchronization is achieved, 1 if correct, 2 if wrong
 
             for (int32_t i = 0; i < vector_size; i++)
                 {
@@ -487,13 +468,6 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, SLRTCorrelator)
                                         d_preamble_index = d_sample_counter;  // record the preamble sample stamp
                                         // std::cout << "Preamble detection for GPS L1 satellite " << d_preamble_index << std::endl;
 
-                                        if ((d_sample_counter - preamble_offset) % d_preamble_period_symbols == 0)
-                                            n_correct_detections_s0++;
-                                        else
-                                            n_wrong_detections_s0++;
-
-                                        n_preamble_detections_s0++;
-
                                         d_stat = 1;  // enter into frame pre-detection status
                                     }
 
@@ -516,21 +490,12 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, SLRTCorrelator)
                                     }
                                 if (abs(corr_value1) - corr_value2 >= threshold)
                                     {
-                                        if ((d_sample_counter - preamble_offset) % d_preamble_period_symbols == 0)
-                                            n_correct_detections_s1++;
-                                        else
-                                            n_wrong_detections_s1++;
-
-                                        n_preamble_detections_s1++;
-
                                         // check preamble separation
                                         preamble_diff = static_cast<int32_t>(d_sample_counter - d_preamble_index);
                                         if (abs(preamble_diff - d_preamble_period_symbols) == 0)
                                             {
                                                 d_preamble_index = d_sample_counter;  // record the preamble sample stamp
                                                 // std::cout << "Preamble confirmation " << d_preamble_index << std::endl;
-
-                                                n_preambles = (d_preamble_index - preamble_offset) / d_preamble_period_symbols + 1;
 
                                                 if (abs(corr_value1) - corr_value2 < 0)
                                                     {
@@ -562,33 +527,55 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, SLRTCorrelator)
                                         // std::cout << "Preamble received. " << "d_sample_counter= " << d_sample_counter << std::endl;
                                         d_preamble_index = d_sample_counter;  // record the preamble sample stamp (t_P)
 
-                                        if ((d_sample_counter - preamble_offset) % d_preamble_period_symbols == 0)
-                                            final_synchronization = 1;
-                                        else
-                                            final_synchronization = 2;
+                                        d_flag_preamble = true; // // valid preamble indicator (initialized to false every montecarlo iteration)
                                     }
-
-                                final_synchronization = 1;
 
                                 break;
                             }
                         }
+              }
 
-                    // If it reaches the end without synchronization, updates n_preambles
-                    if (d_sample_counter == vector_size - 1 && d_stat != 2)
-                        n_preambles = (d_sample_counter - preamble_offset) / d_preamble_period_symbols + 1;
-                }
-
-
-            // Store results in file
-            fout << stddev << ", "
-                 << n_preambles << ", "
-                 << n_preamble_detections_s0 << ", " << n_correct_detections_s0 << ", " << n_wrong_detections_s0 << ", "
-                 << n_preamble_detections_s1 << ", " << n_correct_detections_s1 << ", " << n_wrong_detections_s1 << ", "
-                 << final_synchronization << "\n";
-
+              if(d_flag_preamble) // If preamble indicator set to true, adds 1 to the number of preambles found.
+              {
+                  n_s2++;
+              }
 
         }
+
+    // file pointer
+    std::fstream fout;
+
+    // opens an existing csv (std::ios::app) file or creates a new file (std::ios::out).
+    std::string path = "synchronization_SLRT_test.csv";
+    std::ifstream fin(path);
+    if(fin.fail())
+    {
+      fout.open(path, std::ios::out);
+      fout << "correlation"    << ", "
+           << "montecarlo"     << ", "
+           << "snr"            << ", "
+           << "threshold"      << ", "
+           << "probability"    << ", "
+           << "n_s2"           << "\n";
+
+     fout << "SLRT"            << ", "
+          << Nw                << ", "
+          << snr               << ", "
+          << threshold         << ", "
+          << probability       << ", " // probability = 1, probability of detection is computed, if 0, probability of false alarm computed
+          << n_s2              << "\n";
+
+    }
+    else
+    {
+      fout.open(path, std::ios::app);
+      fout << "SLRT"  << ", "
+           << Nw                << ", "
+           << snr               << ", "
+           << threshold         << ", "
+           << probability       << ", " // probability = 1, probability of detection is computed, if 0, probability of false alarm computed
+           << n_s2              << "\n";
+    }
 
     // Close file
     fout.close();
