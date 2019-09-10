@@ -39,8 +39,7 @@
 #include <string>
 #include <cmath>
 
-#define vector_size 6000     // 20 sub-frames with 300 bits
-#define preamble_offset 200  // Random data before preamble
+#define vector_size 1800     // 6 sub-frames with 300 bits (5 SW)
 #define Nw 100              // Number of Monte-Carlo realizations
 #define threshold 0	     // Threshold for SLRT
 #define snr 10
@@ -89,6 +88,8 @@ public:
     uint32_t d_stat = 0;
 
     double stddev = 0.0;
+
+    int preamble_offset = 0; // Random data before preamble
 };
 
 /*!
@@ -130,7 +131,12 @@ void GpsL1CATelemetrySynchronizationTest::make_vector()
     std::random_device rd;   //Otain a seed for the random number engine
     std::mt19937 gen(rd());  //Standard mersenne_twister_engine seeded with rd()
     std::uniform_int_distribution<> dis(0, 1);
+    std::uniform_int_distribution<> offset(0, 299);
 
+
+    preamble_offset = offset(gen);
+
+    std::cout << preamble_offset << std::endl;
 
     for (int32_t i = 0; i < vector_size; i++)
         {
@@ -192,11 +198,11 @@ void GpsL1CATelemetrySynchronizationTest::fill_gnss_synchro()
 {
     // Random generator with Gaussian distribution
     const double mean = 0.0;
-    stddev = sqrt(pow(10, -snr/10)/2);
+    stddev = sqrt(pow(10, -snr/10)/2); // No = 10^(-EsNodB/10), stddev²=No/2
     auto dist = std::bind(std::normal_distribution<double>{mean, stddev},
         std::mt19937(std::random_device{}()));
 
-    ASSERT_TRUE(probability == 0 && probability == 1);
+    ASSERT_TRUE(probability == 0 || probability == 1);
 
 
     // Probability of false alarm is computed
@@ -216,6 +222,52 @@ void GpsL1CATelemetrySynchronizationTest::fill_gnss_synchro()
 
 }
 
+TEST_F(GpsL1CATelemetrySynchronizationTest, randomNumber)
+{
+  std::random_device rd;   //Otain a seed for the random number engine
+  std::mt19937 gen(rd());  //Standard mersenne_twister_engine seeded with rd()
+  std::uniform_int_distribution<> asd(0, 299);
+
+  std::cout << asd(gen) << std::endl;
+}
+
+TEST_F(GpsL1CATelemetrySynchronizationTest, OpenFiles)
+{
+  // file pointer
+  std::fstream fout;
+
+  // opens an existing csv (std::ios::app) file or creates a new file (std::ios::out).
+  std::string path = "synchronization_HC_test.csv";
+  std::ifstream fin(path);
+  if(fin.fail())
+  {
+    fout.open(path, std::ios::out);
+    fout << "stddev"
+         << ", "
+         << "n_preambles"
+         << ", "
+         << "n_preamble_detections_s0, n_correct_detections_s0, n_wrong_detections_s0, "
+         << "n_preamble_detections_s1, n_correct_detections_s1, n_wrong_detections_s1, "
+         << "final_synchronization"
+         << "\n";
+  }
+  else
+  {
+    fout.open(path, std::ios::app);
+    fout << "0"
+         << ", "
+         << "1"
+         << ", "
+         << "2, 3, 4, "
+         << "5, 6, 7, "
+         << "8"
+         << "\n";
+
+  }
+
+
+}
+
 /*!
  * \ Simulates the synchronization in gps_l1_ca_telemetry_decoder_gs and saves metrics (HC)
  *
@@ -229,20 +281,7 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, HardCorrelator)
     std::chrono::duration<double> elapsed_seconds(0);
     start = std::chrono::system_clock::now();
 
-    // file pointer
-    std::fstream fout;
-
-    // opens an existing csv (std::ios::app) file or creates a new file (std::ios::out).
-    fout.open("synchronization_HC_test_3.csv", std::ios::out);
-
-    fout << "stddev"
-         << ", "
-         << "n_preambles"
-         << ", "
-         << "n_preamble_detections_s0, n_correct_detections_s0, n_wrong_detections_s0, "
-         << "n_preamble_detections_s1, n_correct_detections_s1, n_wrong_detections_s1, "
-         << "final_synchronization"
-         << "\n";
+    int32_t n_s2 = 0;  // Number of synchronizations
 
     // Monte-Carlo realizations
     for (int32_t n = 0; n < Nw; n++)
@@ -259,17 +298,6 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, HardCorrelator)
             preamble_samples();
             make_vector();
             fill_gnss_synchro();
-
-
-            int32_t n_preamble_detections_s0 = 0;  // Number of detected preambles in state 0
-            int32_t n_preamble_detections_s1 = 0;  // Number of detected preambles in state 1
-            int32_t n_correct_detections_s0 = 0;   // Number of correct detected preambles in state 0
-            int32_t n_wrong_detections_s0 = 0;     // Number of wrong detected preambles in state 0
-            int32_t n_correct_detections_s1 = 0;   // Number of correct detected preambles in state 1
-            int32_t n_wrong_detections_s1 = 0;     // Number of wrong detected preambles in state 1
-            int32_t n_preambles = 0;               // Number of total preambles (missed and detected)
-            int32_t final_synchronization = 0;     // 0 if no final synchronization is achieved, 1 if correct, 2 if wrong
-
 
             for (int32_t i = 0; i < vector_size; i++)
                 {
@@ -302,14 +330,7 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, HardCorrelator)
                                 if (abs(corr_value) >= d_samples_per_preamble)
                                     {
                                         d_preamble_index = d_sample_counter;  // record the preamble sample stamp
-                                        // std::cout << "Preamble detection for GPS L1 satellite " << d_preamble_index << std::endl;
-
-                                        if ((d_sample_counter - preamble_offset) % d_preamble_period_symbols == 0)
-                                            n_correct_detections_s0++;
-                                        else
-                                            n_wrong_detections_s0++;
-
-                                        n_preamble_detections_s0++;
+                                        std::cout << "Preamble detection for GPS L1 satellite " << d_preamble_index << std::endl;
 
                                         d_stat = 1;  // enter into frame pre-detection status
                                     }
@@ -338,21 +359,12 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, HardCorrelator)
                                     }
                                 if (abs(corr_value) >= d_samples_per_preamble)
                                     {
-                                        if ((d_sample_counter - preamble_offset) % d_preamble_period_symbols == 0)
-                                            n_correct_detections_s1++;
-                                        else
-                                            n_wrong_detections_s1++;
-
-                                        n_preamble_detections_s1++;
-
                                         // check preamble separation
                                         preamble_diff = static_cast<int32_t>(d_sample_counter - d_preamble_index);
                                         if (abs(preamble_diff - d_preamble_period_symbols) == 0)
                                             {
                                                 d_preamble_index = d_sample_counter;  // record the preamble sample stamp
-                                                // std::cout << "Preamble confirmation " << d_preamble_index << std::endl;
-
-                                                n_preambles = (d_preamble_index - preamble_offset) / d_preamble_period_symbols + 1;
+                                                std::cout << "Preamble confirmation " << d_preamble_index << std::endl;
 
                                                 if (corr_value < 0)
                                                     {
@@ -368,7 +380,7 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, HardCorrelator)
                                             {
                                                 if (preamble_diff > d_preamble_period_symbols)
                                                     {
-                                                        // std::cout << "Preamble missed in s1 " << d_sample_counter << std::endl;
+                                                        std::cout << "Preamble missed in s1 " << d_sample_counter << std::endl;
                                                         d_stat = 0;  // start again
                                                     }
                                             }
@@ -381,32 +393,20 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, HardCorrelator)
                             {
                                 if (d_sample_counter >= d_preamble_index + static_cast<uint64_t>(d_preamble_period_symbols))
                                     {
-                                        // std::cout << "Preamble received. " << "d_sample_counter= " << d_sample_counter << std::endl;
+                                        std::cout << "Preamble received. " << "d_sample_counter= " << d_sample_counter << std::endl;
                                         d_preamble_index = d_sample_counter;  // record the preamble sample stamp (t_P)
 
-                                        if ((d_sample_counter - preamble_offset) % d_preamble_period_symbols == 0)
-                                            final_synchronization = 1;
-                                        else
-                                            final_synchronization = 2;
+                                        n_s2++;
                                     }
 
                                 break;
                             }
                         }
                 }
-
-
-            // Store results in file
-            fout << stddev << ", "
-                 << n_preambles << ", "
-                 << n_preamble_detections_s0 << ", " << n_correct_detections_s0 << ", " << n_wrong_detections_s0 << ", "
-                 << n_preamble_detections_s1 << ", " << n_correct_detections_s1 << ", " << n_wrong_detections_s1 << ", "
-                 << final_synchronization << "\n";
-
         }
 
     // Close file
-    fout.close();
+    //fout.close();
 
     end = std::chrono::system_clock::now();
     elapsed_seconds = end - start;
