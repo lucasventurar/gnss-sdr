@@ -376,11 +376,20 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, HardCorrelator)
     if(fin.fail())
     {
       fout.open(path, std::ios::out);
-      fout << "correlation" << ", "
-           << "montecarlo"  << ", "
-           << "snr"         << ", "
-           << "threshold"   << ", "
-           << "probability" << "\n";
+      fout << "correlation"    << ", "
+           << "montecarlo"     << ", "
+           << "snr"            << ", "
+           << "threshold"      << ", "
+           << "probability"    << ", "
+           << "n_s2"           << "\n";
+
+     fout << "HardCorrelator"  << ", "
+          << Nw                << ", "
+          << snr               << ", "
+          << threshold         << ", "
+          << probability       << ", " // probability = 1, probability of detection is computed, if 0, probability of false alarm computed
+          << n_s2              << "\n"; 
+
     }
     else
     {
