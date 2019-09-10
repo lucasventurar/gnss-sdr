@@ -40,8 +40,8 @@
 #include <cmath>
 
 #define vector_size 1800     // 6 sub-frames with 300 bits (5 SW)
-#define Nw 100              // Number of Monte-Carlo realizations
-#define threshold 0	     // Threshold for SLRT
+#define Nw 10000              // Number of Monte-Carlo realizations
+#define threshold -0.1	     // Threshold for SLRT
 #define snr 10
 #define probability 1       // If probability = 1, probability of detection is computed, if 0, probability of false alarm computed
 
@@ -90,6 +90,8 @@ public:
     double stddev = 0.0;
 
     int preamble_offset = 0; // Random data before preamble
+
+    bool d_flag_preamble = false;
 };
 
 /*!
@@ -135,8 +137,6 @@ void GpsL1CATelemetrySynchronizationTest::make_vector()
 
 
     preamble_offset = offset(gen);
-
-    std::cout << preamble_offset << std::endl;
 
     for (int32_t i = 0; i < vector_size; i++)
         {
@@ -222,15 +222,6 @@ void GpsL1CATelemetrySynchronizationTest::fill_gnss_synchro()
 
 }
 
-TEST_F(GpsL1CATelemetrySynchronizationTest, randomNumber)
-{
-  std::random_device rd;   //Otain a seed for the random number engine
-  std::mt19937 gen(rd());  //Standard mersenne_twister_engine seeded with rd()
-  std::uniform_int_distribution<> asd(0, 299);
-
-  std::cout << asd(gen) << std::endl;
-}
-
 TEST_F(GpsL1CATelemetrySynchronizationTest, OpenFiles)
 {
   // file pointer
@@ -295,6 +286,8 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, HardCorrelator)
 
             d_stat = 0;
 
+            d_flag_preamble = false;
+
             preamble_samples();
             make_vector();
             fill_gnss_synchro();
@@ -330,7 +323,7 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, HardCorrelator)
                                 if (abs(corr_value) >= d_samples_per_preamble)
                                     {
                                         d_preamble_index = d_sample_counter;  // record the preamble sample stamp
-                                        std::cout << "Preamble detection for GPS L1 satellite " << d_preamble_index << std::endl;
+                                        // std::cout << "Preamble detection for GPS L1 satellite " << d_preamble_index << std::endl;
 
                                         d_stat = 1;  // enter into frame pre-detection status
                                     }
@@ -364,7 +357,7 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, HardCorrelator)
                                         if (abs(preamble_diff - d_preamble_period_symbols) == 0)
                                             {
                                                 d_preamble_index = d_sample_counter;  // record the preamble sample stamp
-                                                std::cout << "Preamble confirmation " << d_preamble_index << std::endl;
+                                                // std::cout << "Preamble confirmation " << d_preamble_index << std::endl;
 
                                                 if (corr_value < 0)
                                                     {
@@ -380,7 +373,7 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, HardCorrelator)
                                             {
                                                 if (preamble_diff > d_preamble_period_symbols)
                                                     {
-                                                        std::cout << "Preamble missed in s1 " << d_sample_counter << std::endl;
+                                                        // std::cout << "Preamble missed in s1 " << d_sample_counter << std::endl;
                                                         d_stat = 0;  // start again
                                                     }
                                             }
@@ -393,17 +386,24 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, HardCorrelator)
                             {
                                 if (d_sample_counter >= d_preamble_index + static_cast<uint64_t>(d_preamble_period_symbols))
                                     {
-                                        std::cout << "Preamble received. " << "d_sample_counter= " << d_sample_counter << std::endl;
+                                        // std::cout << "Preamble received. " << "d_sample_counter= " << d_sample_counter << std::endl;
                                         d_preamble_index = d_sample_counter;  // record the preamble sample stamp (t_P)
 
-                                        n_s2++;
+                                        d_flag_preamble = true; // // valid preamble indicator (initialized to false every montecarlo iteration)
                                     }
 
                                 break;
                             }
                         }
                 }
+
+                if(d_flag_preamble) // If preamble indicator set to true, adds 1 to the number of preambles found.
+                {
+                    n_s2++;
+                }
         }
+
+    std::cout << n_s2 << std::endl;
 
     // Close file
     //fout.close();
