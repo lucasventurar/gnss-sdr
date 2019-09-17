@@ -895,8 +895,11 @@ TEST_F(GpsL1CATelemetrySynchronizationTest, MultipleSLRTCorrelator)
                                   if (d_symbol_history.size() >= GPS_CA_PREAMBLE_LENGTH_BITS)
                                       {
                                           // ******* preamble correlation ********
-                                          corr_value1 += d_symbol_history[i] * d_preamble_samples[i];
-                                          corr_value2 += abs(d_symbol_history[i]);
+                                          for (int32_t i = 0; i < GPS_CA_PREAMBLE_LENGTH_BITS; i++)
+                                              {
+                                                  corr_value1 += d_symbol_history[i] * d_preamble_samples[i];
+                                                  corr_value2 += abs(d_symbol_history[i]);
+                                              }
                                       }
 
                                   if (abs(corr_value1) - corr_value2 >= multiple_threshold)
